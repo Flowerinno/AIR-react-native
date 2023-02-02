@@ -1,22 +1,17 @@
 import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {Button} from 'native-base';
-
+import Animated, {SlideInRight, SlideOutLeft} from 'react-native-reanimated';
 type HomeProps = {setCameraIsOn: (arg0: boolean) => void};
 
 const Home = ({setCameraIsOn}: HomeProps): JSX.Element => {
   return (
-    <View style={styles.container}>
+    <Animated.View style={styles.container} entering={SlideInRight.delay(250)}>
       <View style={styles.textWrapper}>
         <Text style={styles.header}>
           This is AIR - Artificial Intelligence Recognition
         </Text>
-        <Text style={styles.text}>
-          You forgot how da fak any thing is called?
-        </Text>
-        <Text style={styles.text}>
-          Point your camera on it and see magic happen
-        </Text>
+        <Text style={styles.text}>Point your camera and see magic happen</Text>
       </View>
       <Button
         colorScheme="secondary"
@@ -24,7 +19,7 @@ const Home = ({setCameraIsOn}: HomeProps): JSX.Element => {
         style={styles.button}>
         Cam
       </Button>
-    </View>
+    </Animated.View>
   );
 };
 

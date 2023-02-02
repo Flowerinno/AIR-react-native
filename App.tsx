@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import {NativeBaseProvider} from 'native-base';
+import {NativeBaseProvider, Badge, Box, VStack} from 'native-base';
 import {StyleSheet, Text, View} from 'react-native';
 import {fetchAPI} from './api/api';
 import CameraComponent from './components/camera/Camera';
@@ -46,15 +46,26 @@ const App = (): JSX.Element => {
         <View style={styles.container}>
           <CameraComponent setRecognition={setRecognition} setId={setId} />
           {recognition.length > 0 && (
-            <View style={styles.recog}>
-              {recognition.map((item: RecognitionItem, index) => {
-                return (
-                  <Text key={index} style={{color: 'black', padding: 5}}>
-                    {item.label} - {item.confidence}
-                  </Text>
-                );
-              })}
-            </View>
+            <Box style={styles.recog}>
+              <VStack space={{base: 2, sm: 4}}>
+                {recognition.map((item: RecognitionItem, index) => {
+                  let confidence = item.confidence.toFixed(3) + '%';
+                  return (
+                    <Badge
+                      variant="solid"
+                      key={index}
+                      shadow={2}
+                      style={{
+                        width: '100%',
+                      }}
+                      mb={-3}
+                      zIndex={1}>
+                      {item.label + ' - ' + confidence}
+                    </Badge>
+                  );
+                })}
+              </VStack>
+            </Box>
           )}
         </View>
       )}
@@ -100,12 +111,9 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   recog: {
-    height: '35%',
-    width: '65%',
+    width: '45%',
     position: 'absolute',
-    padding: 15,
     fontWeight: 'bold',
-    top: '5%',
   },
 });
 

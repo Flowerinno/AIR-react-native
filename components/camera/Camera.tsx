@@ -5,6 +5,7 @@ import {
   Camera as CameraVision,
 } from 'react-native-vision-camera';
 import {Button} from 'native-base';
+import Animated, {SlideInRight, SlideInDown} from 'react-native-reanimated';
 import {uploadToBlobAPI, createBlobAPI} from '../../api/api';
 
 type CameraPropsT = {
@@ -25,17 +26,22 @@ const CameraComponent = ({
   let device = devices[cameraType];
 
   useEffect(() => {
-    cameraPermissionHandler();
+    if (cameraPermission !== 'authorized') {
+      cameraPermissionHandler();
+    }
   }, []);
-  console.log(device);
+
   const cameraPermissionHandler = async () => {
     try {
-      setCameraPermission(await CameraVision.requestCameraPermission());
+      console.log('test');
+      let permission = await CameraVision.requestCameraPermission();
+      setCameraPermission(permission);
     } catch (error) {
-      console.log('error on permission request');
+      setCameraPermission('null');
     }
   };
-  console.log(cameraPermission);
+
+  console.log('camera permission', cameraPermission);
   const screenshotHandler = async () => {
     if (null == ref.current) {
       return;
@@ -62,21 +68,39 @@ const CameraComponent = ({
 
   if (cameraPermission !== 'authorized') {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>Sorry, you can't use my camera...</Text>
-      </View>
+      <Animated.View
+        style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+        entering={SlideInRight.delay(250)}>
+        <Text
+          style={{
+            width: '90%',
+            fontSize: 20,
+            fontWeight: 'bold',
+            textAlign: 'center',
+            flex: 0.3,
+          }}>
+          Why did you decline ? You can't use it now... Try again or don't , i
+          really don't care.
+        </Text>
+        <Button
+          style={styles.button}
+          colorScheme="secondary"
+          onPress={cameraPermissionHandler}>
+          Camera
+        </Button>
+      </Animated.View>
     );
   }
 
   if (device == null)
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>No active cameras.</Text>
+        <Text>Can't find your device, please restart the application.</Text>
       </View>
     );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={styles.container} entering={SlideInDown.delay(100)}>
       <CameraVision
         device={device}
         style={{flex: 1}}
@@ -98,7 +122,7 @@ const CameraComponent = ({
           Screenshot
         </Button>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
