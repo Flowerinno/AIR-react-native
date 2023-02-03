@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef, useCallback} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
 import {
   useCameraDevices,
   Camera as CameraVision,
@@ -11,11 +11,15 @@ import {uploadToBlobAPI, createBlobAPI} from '../../api/api';
 type CameraPropsT = {
   setRecognition: (arg0: []) => void;
   setId: (id: string) => void;
+  setIsLoading: (loadingStatus: boolean) => void;
+  isLoading: boolean;
 };
 
 const CameraComponent = ({
   setRecognition,
   setId,
+  setIsLoading,
+  isLoading,
 }: CameraPropsT): JSX.Element => {
   const [cameraPermission, setCameraPermission] = useState('');
   const [cameraType, setCameraType] = useState<'front' | 'back'>('back');
@@ -41,11 +45,11 @@ const CameraComponent = ({
     }
   };
 
-  console.log('camera permission', cameraPermission);
   const screenshotHandler = async () => {
     if (null == ref.current) {
       return;
     }
+    setIsLoading(true);
     setRecognition([]);
     try {
       const {blob_id: id, upload_url: url} = await createBlobAPI();
@@ -69,8 +73,8 @@ const CameraComponent = ({
   if (cameraPermission !== 'authorized') {
     return (
       <Animated.View
-        style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
-        entering={SlideInRight.delay(250)}>
+        entering={SlideInRight.delay(250)}
+        style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <Text
           style={{
             width: '90%',
@@ -98,9 +102,9 @@ const CameraComponent = ({
         <Text>Can't find your device, please restart the application.</Text>
       </View>
     );
-
+  console.log(isLoading);
   return (
-    <Animated.View style={styles.container} entering={SlideInDown.delay(100)}>
+    <Animated.View entering={SlideInDown.delay(100)} style={styles.container}>
       <CameraVision
         device={device}
         style={{flex: 1}}
@@ -115,12 +119,21 @@ const CameraComponent = ({
           onPress={toggleCameraType}>
           Flip Camera
         </Button>
-        <Button
-          style={styles.button}
-          colorScheme="secondary"
-          onPress={screenshotHandler}>
-          Screenshot
-        </Button>
+        {isLoading ? (
+          <ActivityIndicator
+            size={30}
+            animating={isLoading}
+            color="#00ff00"
+            style={{height: 55, width: 120, padding: 5, borderRadius: 20}}
+          />
+        ) : (
+          <Button
+            style={styles.button}
+            colorScheme="secondary"
+            onPress={screenshotHandler}>
+            Screenshot
+          </Button>
+        )}
       </View>
     </Animated.View>
   );
@@ -132,6 +145,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    position: 'relative',
   },
   camera: {
     flex: 1,

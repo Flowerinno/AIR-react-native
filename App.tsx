@@ -12,14 +12,15 @@ interface RecognitionItem {
 
 const App = (): JSX.Element => {
   const [recognition, setRecognition] = useState<RecognitionItem[] | []>([]);
-  const [cameraIsOn, setCameraIsOn] = useState<boolean>(false);
+  const [cameraIsOn, setCameraIsOn] = useState(false);
   const [id, setId] = useState('');
-
+  const [isLoading, setIsLoading] = useState(false);
   const fetchHandler = async () => {
     try {
       const labels = await fetchAPI(id);
-      console.log(labels);
-      if (labels.labels) {
+
+      if (labels.labels.length > 0) {
+        setIsLoading(false);
         setRecognition(labels.labels);
       }
       return;
@@ -44,10 +45,15 @@ const App = (): JSX.Element => {
       {!cameraIsOn && <Home setCameraIsOn={setCameraIsOn} />}
       {cameraIsOn && (
         <View style={styles.container}>
-          <CameraComponent setRecognition={setRecognition} setId={setId} />
+          <CameraComponent
+            setRecognition={setRecognition}
+            setId={setId}
+            setIsLoading={setIsLoading}
+            isLoading={isLoading}
+          />
           {recognition.length > 0 && (
             <Box style={styles.recog}>
-              <VStack space={{base: 2, sm: 4}}>
+              <VStack space={{base: 0, sm: 4}}>
                 {recognition.map((item: RecognitionItem, index) => {
                   let confidence = item.confidence.toFixed(3) + '%';
                   return (
@@ -55,10 +61,7 @@ const App = (): JSX.Element => {
                       variant="solid"
                       key={index}
                       shadow={2}
-                      style={{
-                        width: '100%',
-                      }}
-                      mb={-3}
+                      mb={0.5}
                       zIndex={1}>
                       {item.label + ' - ' + confidence}
                     </Badge>
@@ -113,6 +116,7 @@ const styles = StyleSheet.create({
   recog: {
     width: '45%',
     position: 'absolute',
+    top: '1%',
     fontWeight: 'bold',
   },
 });
